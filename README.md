@@ -8,51 +8,74 @@ SCIL provides this user guide which will be primarily useful to research groups 
 
 ---
 
-## Step-by-Step Guide: Running FourCastNet on AWS
+## Step-by-Step Guide to Run FCNv2 Forecasts on AWS
 
-### 1. Launch a GPU-enabled EC2 Instance
+### 1. vCPU Quota Request (for New Accounts)
 
-* Go to the [AWS EC2 Console](https://console.aws.amazon.com/ec2/)
-* Choose an AMI (Amazon Machine Image): **Deep Learning AMI (Amazon Linux 2)**
-* Instance type: **g4dn.xlarge** or better
-* Storage: Allocate at least **50 GB** for Docker image and model files
-* Security Group: Open port **22** for SSH
+If your AWS account is new, your default vCPU quota is likely zero. You will need to request an increase:
 
-### 2. SSH into Your Instance
+* **Service**: Amazon Elastic Compute Cloud (Amazon EC2)
+* **Quota Name**: Running On-Demand G and VT instances
+* **Request**: Increase to at least **4 vCPUs** at the **Account Level**
 
-```bash
-ssh -i "your-key.pem" ec2-user@your-ec2-public-ip
-```
+### 2. Launch the Deep Learning AMI with GPU Support
 
-### 3. Start and Enable Docker
+* Open the AMI: **Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.7 (Amazon Linux 2023)** — version `20250607`
+* This AMI comes with the **NVIDIA driver preinstalled** ✅
 
-```bash
-sudo systemctl start docker
-sudo usermod -aG docker ec2-user
-newgrp docker
-```
-
-### 4. Pull the Prebuilt CUDA 12.4 Docker Image
+### 3. Install Python pip (if not already installed)
 
 ```bash
-docker pull henrylisdsu/nvidia-cuda-12.4:v2.5
+sudo yum install python3-pip -y
 ```
 
-### 5. Run the Container with GPU Access
+### 4. Install PyTorch and CUDA Toolkit
 
 ```bash
-docker run --gpus all -it henrylisdsu/nvidia-cuda-12.4:v2.5 /bin/bash
+pip install torch==2.5.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121 --force-reinstall
 ```
 
-### 6. Install Any Missing Tools Inside the Container
+### 5. Verify CUDA with `chk_cuda.py`
 
-If needed, switch to root and install tools:
+Use a simple script to verify:
+
+```python
+import torch
+print("Torch version:", torch.__version__)
+print("CUDA available:", torch.cuda.is_available())
+print("CUDA version:", torch.version.cuda)
+print("GPU:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None")
+```
+
+### 6. Prepare FourCastNet Directory
 
 ```bash
-apt update && apt install curl nano -y
+mkdir fourcastnetv2
 ```
 
-### 7. Download FourCastNet Model Files
+### 7. Set Up CDS API Credentials
+
+Create a `.cdsapirc` file in your home directory:
+
+```bash
+nano ~/.cdsapirc
+```
+
+Paste your credentials from [https://cds.climate.copernicus.eu/how-to-api](https://cds.climate.copernicus.eu/how-to-api):
+
+```ini
+url: https://cds.climate.copernicus.eu/api/v2
+key: <your-uid>:<your-api-key>
+```
+
+Install the required Python client:
+
+```bash
+pip install "cdsapi>=0.7.4"
+pip install --upgrade attrs
+```
+
+### 8. Download Precomputed FCNv2 Normalization Files in the fourcastnetv2 Directory
 
 ```bash
 curl -O https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/global_means.npy
@@ -60,38 +83,25 @@ curl -O https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small
 curl -O https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/weights.tar
 ```
 
-### 8. Install and Configure `ai-models` Package
-
-Install required Python packages:
+### 9. Install the ECMWF AI Models Package
 
 ```bash
-pip install torch==2.5.1 torchvision==0.18.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
-pip install ai-models ai-models-fourcastnetv2
+pip install ai-models
+pip install ai-models-fourcastnetv2
 ```
 
-### 9. Set Up Your CDS API Credentials
+### 10. Generate a Forecast
 
-Create a `.cdsapirc` file in your home directory:
-
-```ini
-url: https://cds.climate.copernicus.eu/api/v2
-key: your-uid:your-api-key
-```
-
-### 10. Run FourCastNet Inference
+You’re now ready to generate a forecast using FCNv2:
 
 ```bash
 ai-models --input cds --date 20230110 --time 0000 fourcastnetv2-small
 ```
 
-You should see:
+You should see output confirming that the model is using CUDA:
 
 ```
 INFO Using device 'CUDA'. The speed of inference depends greatly on the device.
 ```
 
-And results will be saved as a `.grib` file.
-
----
-
-This setup demonstrates how small research groups can replicate advanced climate AI workflows on cloud infrastructure, empowering broader participation in climate modeling and forecasting.
+This completes your FCNv2 setup using AWS!
