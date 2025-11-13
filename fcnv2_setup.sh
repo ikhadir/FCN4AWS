@@ -20,9 +20,9 @@ pip install --upgrade attrs
 
 # === Step 8: Download FCNv2 Normalization Files ===
 echo "Downloading FCNv2 normalization files..."
-curl -O https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/global_means.npy
-curl -O https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/global_stds.npy
-curl -O https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/weights.tar
+curl -L -O -A "Mozilla/5.0" https://sites.ecmwf.int/repository/ai-models/test-data/fourcastnetv2/small/global_means.npy
+curl -L -O -A "Mozilla/5.0" https://sites.ecmwf.int/repository/ai-models/test-data/fourcastnetv2/small/global_stds.npy
+curl -L -O -A "Mozilla/5.0" https://sites.ecmwf.int/repository/ai-models/test-data/fourcastnetv2/small/weights.tar
 
 # === Step 9: Install ECMWF AI Model Packages ===
 echo "Installing ECMWF AI model packages..."
