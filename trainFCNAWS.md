@@ -1,0 +1,3 @@
+# Training FourCastNet on an AWS EC2 instance
+
+This is a step by step tutorial that will guide users to train FourCastNet using an Elastic Cloud 2 (EC2) instance from Amazon Web Services (AWS). In this tutorial you will be able to run an EC2 instance with NVIDIA GPU, clone NVIDIA's FourCastNet repository, mount a docker container with all the dependencies loaded for training, request global ERA5 weather data from Climate Data Store (CDS), adjust training configurations to finetune FourCastNet, train the model, and create visualizations from the model's predictions you generated from training.

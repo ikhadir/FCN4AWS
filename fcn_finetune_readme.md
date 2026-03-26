@@ -18,7 +18,7 @@ This is a step-by-step tutorial to guide users through training and fine-tuning 
 
 1. Go to [https://aws.amazon.com/ec2/](https://aws.amazon.com/ec2/)
 2. Launch a new instance using the Deep Learning Base OSS Nvidia Driver GPU AMI (Amazon Linux 2023)
-3. Choose an instance type with a GPU (e.g., `g4dn.xlarge`, `p3.2xlarge`)
+3. Choose an instance type with a GPU (e.g., `g4dn.2xlarge`, `p3.2xlarge`)
 
     a. Ensure that the GPU has sufficient memory for training >16GB
 4. Configure security group to allow SSH (port 22)
