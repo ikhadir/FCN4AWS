@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "=== Install required packages ==="
-pip install --quiet ai-models ai-models-fourcastnetv2 cdsapi attrs h5py numpy==1.26.4 torch torchvision matplotlib cartopy
+pip install ai-models ai-models-fourcastnetv2 cdsapi attrs h5py numpy==1.26.4 matplotlib cartopy pygrib
 
 echo "=== Create working directory ==="
 mkdir -p fourcastnetv2
@@ -47,11 +47,11 @@ if [[ "$TORCH_VERSION" == 2.5.1* ]]; then
     echo "Correct PyTorch version already installed: $TORCH_VERSION"
 else
     echo "Installing compatible PyTorch version..."
-    pip install torch==2.5.1 torchvision==0.20.1
+    pip install torch==2.5.1
 fi
 
 echo "=== Running prediction ==="
 
 ai-models --input cds --date 20251002 --time 0000 fourcastnetv2-small
 
-echo "✅ Forecast complete: output.grib"
+echo "✅ Forecast complete: fourcastnetv2-small.grib"
